@@ -1,0 +1,26 @@
+# HOW TO RUN WINDOWS GAMES ON macOS
+
+I. Light Applications (No High System Requirements for RAM, etc.)
+For simple applications that don’t require high performance (uses only about 50% of your Mac’s RAM on Windows, or up to 70-80% with overclocking), you can use:
+
+Install Windows through Parallels – easy and efficient.
+Install Windows via VMware – another straightforward option.
+II. High-Performance Applications (Demanding System Requirements)
+For applications needing high performance, full software support, and maximum RAM utilization:
+
+Use CrossOver: This can create multiple virtual machines and provides decent performance but does not support DirectX 11 or 12. Some game engines may have font and audio errors.
+III. Use Apple’s Game Porting Toolkit
+Run via Terminal: This offers stable performance with support for DirectX 11 and DirectX 12, making it ideal for many games.
+IV. Most Stable Solution – Combine Both Methods
+Use Crossover and Apple’s Game Porting Toolkit Together: With Crossover (CXP), you can configure it to enable DirectX 11 and 12 support, combining the strengths of both solutions.
+
+# HOW TO RUN iOS GAMES ON macOS
+Use PlayCover to run IPA files.
+On Macs with Apple Silicon, some iOS apps can be downloaded directly from the App Store.
+Use software like iMazing to port iOS apps directly to macOS.
+
+#HOW TO RUN ANDROID GAMES ON macOS
+
+For Intel Macs: Run emulation software like Nox (note: currently unsupported on M1).
+Temporary Solution for M1 Macs: Use Android Studio to create a virtual Android device, though it’s slow and lacks performance.
+Another option is to install an Android virtual machine on VMware.
