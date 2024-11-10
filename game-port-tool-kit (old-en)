@@ -1,0 +1,209 @@
+Homebrew
+Note: if you have ever installed Homebrew before, then it is advised to remove ARM64 Homebrew as this can interfere with this build process. Either use a Homebrew uninstall script or delete the folder /opt/homebrew/bin. If you prefer to keep both ARM64 and x86 versions of brew installed, you may add a "brew-switcher" to your .zshrc file to allow either version to be used depending on the active architecture. You may follow the steps at the end of this section after installing Brew to achieve this.
+Open Terminal (search in Spotlight on macOS).
+
+Install Rosetta:
+softwareupdate --install-rosetta
+Enter an x86_64 shell to continue the following steps in a Rosetta environment. All subsequent commands should be run within this shell.
+arch -x86_64 zsh
+Install the x86_64 version of Homebrew if you don't already have it.
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+Set the path:
+(echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> /Users/$USER/.zprofile
+eval "$(/usr/local/bin/brew shellenv)"
+
+Make sure the brew command is on your path:
+which brew
+If this command does not print /usr/local/bin/brew, you should use this command:
+export PATH=/usr/local/bin:${PATH}
+Optionally retain both ARM64 and x86 versions of Brew
+Build • Link
+Run this command to download Apple tap:
+brew tap apple/apple http://github.com/apple/homebrew-apple
+Install the game-porting-toolkit formula. This formula downloads and compiles several large software projects. How long this takes will depend on the speed of your computer. It can take over 1 hour to complete depending on the speed of your Mac.
+brew -v install apple/apple/game-porting-toolkit
+If during installation you see an error such as “Error: game-porting-toolkit: unknown or unsupported macOS version: :dunno”, your version of Homebrew doesn’t have macOS Sonoma support. Update to the latest version of Homebrew and try again.
+brew update ; brew -v install apple/apple/game-porting-toolkit
+Ensure the toolkit is already on latest version • Link
+Ensure you're in an x86_64 shell to continue the following steps in a Rosetta environment. All subsequent commands should be run within this shell, re-run if you're unsure if you're in correct shell or just doing an update.
+arch -x86_64 zsh
+Run Homebrew to gather potential updates and upgrade Apple's GPTK formula:
+brew update && brew upgrade apple/apple/game-porting-toolkit
+If you're updating from previous release, make sure to repeat Preparing the toolkit section below.
+On base M1 takes around ~48 mins to update, clean install takes ~75mins, for comparison M2 Max: ~19mins to update, 36mins for clean install.
+Preparing the toolkit • Link
+Make sure the Game Porting Toolkit dmg downloaded earlier is mounted at /Volumes/Game Porting Toolkit-1.0. Use this script to copy the Game Porting Toolkit library directory into Wine’s library directory.
+ditto /Volumes/Game\ Porting\ Toolkit-1.0/lib/ `brew --prefix game-porting-toolkit`/lib/
+Put the 3 scripts from the Game Porting Toolkit DMG into here /usr/local/bin using this command:
+cp /Volumes/Game\ Porting\ Toolkit*/gameportingtoolkit* /usr/local/bin
+If you're updating GPTK and its DMG to use with Heroic, check Epic / GOG.com / Amazon Prime Gaming support with the Heroic Games Launcher section as it needs same scripts to be updated but are stored in different location.
+Wine prefix • Link
+A Wine prefix contains a virtual C: drive, similar to a Bottle in CrossOver. You will install the toolkit and your game into this virtual C: drive. Run the following command to create a new Wine prefix named my-game-prefix in your home directory. This will create a Wine prefix called my-game-prefix but could be renamed to anything.
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 winecfg
+●	A “Wine configuration” window should appear on your screen.
+●	Change the version of Windows to Windows 10.
+●	Choose Apply and then OK to exit winecfg.
+If the “Wine configuration” window does not appear, and no new icon appears in the Dock, verify that you have correctly installed the x86_64 version of Homebrew as well as the game-porting-toolkit formula.
+Now you are ready to install a launcher or individual Windows games into this Wine prefix, see below.
+Steam • Link
+Download the Windows version of Steam and place in your Downloads folder.
+Install Steam
+gameportingtoolkit ~/my-game-prefix ~/Downloads/SteamSetup.exe
+Run Steam
+gameportingtoolkit ~/my-game-prefix 'C:\Program Files (x86)/Steam/steam.exe'
+Log into Steam
+A common issue is that Steam will present with a blank black window.
+Alternate way of launching Steam (after installing):
+MTL_HUD_ENABLED=1 WINEESYNC=1 WINEPREFIX=~/my-game-prefix /usr/local/Cellar/game-porting-toolkit/1.0.3/bin/wine64 'C:\Program Files (x86)\Steam\steam.exe'
+
+If this continues then close the Terminal window and then re-open and try again, repeat until the login screen opens. Now you should be able to download and launch Windows games through Steam.
+Battle.net • Link
+Download the Windows version of Battle.net and place in your Downloads folder.
+Make a new Wineprefix for Battle.net, you can choose to use my-game-prefix or change this to anything else.
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 winecfg
+●	A “Wine configuration” window should appear on your screen.
+●	Change the version of Windows to Windows 10.
+●	Choose Apply and then OK to exit winecfg.
+If you are running Diablo IV, then you need to run this script to update the Wineprefix to appear as a more recent version of Windows:
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentBuild /t REG_SZ /d 19042 /f
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentBuildNumber /t REG_SZ /d 19042 /f
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wineserver -k
+
+Run Battle.net launcher
+gameportingtoolkit ~/my-game-prefix ~/Downloads/Battle.net-Setup.exe
+Be aware that there is an issue launching Battle.net once installed, the only current way to re-login is to 'install' the launcher again. 
+Start individual game without the launcher using this command:
+arch -x86_64 gameportingtoolkit-no-hud ~/my-game-prefix 'C:\Program Files (x86)\Diablo IV\Diablo IV Launcher.exe'
+Epic / GOG.com / Amazon Prime Gaming support with the Heroic Games Launcher • Link
+This is particularly useful because as it currently stands, the real Epic Games Launcher fails to install under the Game Porting Toolkit. Heroic supports Epic / GOG / Amazon Prime games.
+1. Install the native macOS Heroic Games Launcher or from Homebrew [Requires 2.9.0 and/or newer]:
+- Ensure you're using ARM zsh:
+arch -arm64e zsh
+- Install Heroic's cask:
+brew install --cask heroic
+- Put 3 script from the DMG to desired folder by Heroic (~/bin in this case):
+Create folder bin inside your HOME directory.
+mkdir ~/bin
+Copy all the scripts from GPTK 1.0 beta 3 DMG:
+cp /Volumes/Game\ Porting\ Toolkit*/gameportingtoolkit* ~/bin
+If you're updating e.g. to beta 3, it will ask to overwrite.
+2. Open Heroic, check for updates if needed, log into your Epic Games/GOG.com/Amazon accounts.
+3. Go to Settings > Game Defaults > Make sure GPTK is selected as preferred method.
+4. Uncheck DXVK and Show Stats Overlay.
+5. Make sure your Game Porting Toolkit Wine Prefix is selected. If you followed Apple's guide this is /Users/$USER/my-game-prefix.
+6. If you open Settings > Other section you can also enable ESYNC and Metal HUD by add any environment variables you want like WINEESYNC=1 and MTL_HUD_ENABLED=1. Removing them or setting to 0 will disable them.
+7. Install and test desired game.
+Commands • Link
+Installing individual exe games: open your Wine prefix’s virtual C: drive in Finder (open ~/my-game-prefix/drive_c) and copy your game into an appropriate subdirectory.
+A. Standard launching
+gameportingtoolkit ~/my-game-prefix 'C:\Program Files (x86)\Steam\steam.exe'
+This launches the given Windows game binary with a visible extended Metal Performance HUD and filters logging to output from the Game Porting Toolkit.
+B. Launching without a HUD
+gameportingtoolkit-no-hud ~/my-game-prefix 'C:\Program Files (x86)\Steam\steam.exe'
+C. Launching with Wine ESYNC disabled
+gameportingtoolkit-no-esync ~/my-game-prefix 'C:\Program Files (x86)\Steam\steam.exe'
+To enter Winecfg:
+gameportingtoolkit ~/my-game-prefix winecfg
+Shortcut • Link
+ 
+Made by user Omsier.
+You can make a shortcut for Steam for example by using macOS built-in Automator app.
+●	Open Automator.
+●	Select New Application.
+●	In the 2nd column select Run Shell Script.
+●	Copy and paste this code into the box:
+#!/bin/zsh
+
+export PATH="/usr/local/bin:${PATH}"
+
+arch -x86_64 gameportingtoolkit ~/my-game-prefix 'C:\Program Files (x86)\Steam\steam.exe'
+
+●	Save the shortcut somewhere e.g. Applications.
+●	Above shortcut can be customised to any Wineprefix or game.
+●	Add an icon by selecting the shortcut, pressing ⌘ Command+I to Get Info, then dragging and dropping a PNG file onto the top left of the window.
+Logging • Link
+The provided bin/gameportingtoolkit* scripts can be copied onto your path to facilitate different forms of logging and launching. You can run these scripts from any shell; you don’t need to switch to the Rosetta environment first.
+Logging output will appear in the Terminal window in which you launch your game as well as the system log, which can be viewed with the Console app found in Applications ▸ Utilities. Log messages from the Game Porting Toolkit are prefixed with D3DM. By default the gameportingtoolkit* scripts will filter to just the D3DM-prefixed messages.
+Troubleshooting • Link
+Steam login black screen • Link
+ 
+Steam login black screen issue.
+Alternate Steam launch command
+Close the Terminal window and then reopen and retry the command, repeat several times.
+Alternate way of launching Steam (after installing):
+MTL_HUD_ENABLED=1 WINEESYNC=1 WINEPREFIX=~/my-game-prefix /usr/local/Cellar/game-porting-toolkit/1.0.3/bin/wine64 'C:\Program Files (x86)/Steam/steam.exe'
+
+If still not working then try using CrossOver and create a Steam bottle, then login, then redirect this WINEPREFIX to that bottle:
+WINEPREFIX="/Users/$USER/Library/Application Support/CrossOver/Bottles/Steam/" 
+
+
+Use macOS Steam login[2]
+
+1.	Login to Steam macOS.
+2.	From /Users/$USER/Library/Application Support/Steam, copy three files/folders: config, registry.vdf, userdata.
+3.	Paste into ~/my-game-prefix/drive_c/Program Files (x86)/Steam/
+Steam crashes straight after opening • Link
+Disconnect external monitors[3]
+
+Disconnect any external monitors, or alternatively stop mirroring the screen.
+Battle.net launcher won't re-launch • Link
+Re-install the launcher to reopen, no other fix at the moment.
+Windows version too old • Link
+Windows version too old[4]
+
+My game won’t run because it thinks the version of Windows is too old. Some games detect specific minimum versions of Windows and need to be updated. Use this script to update your wineprefix with build 19042 which should work for most games e.g. Spider-Man Remastered.
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentBuild /t REG_SZ /d 19042 /f
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentBuildNumber /t REG_SZ /d 19042 /f
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wineserver -k
+
+steamwebhelper.exe crashes • Link
+This is caused by Steam being run through macOS Ventura or below, most users should upgrade to macOS Sonoma. You can use the CrossOver workaround to login to Steam but you'll experience constant crashing.
+Nothing loads after a crash • Link
+Try closing all Wine threads:
+killall -9 wineserver && killall -9 wine64-preloader
+Anti-cheat and DRM • Link
+Likely there will be no fixes for any games that use anti-cheat, e.g. Easy Anti Cheat. Some games have workarounds e.g. Elden Ring. Other games that use say Denuvo may also be incompatible until that DRM is removed by the game's developer.
+My game won’t run because it requires Mono, .NET, or the MSVCRT runtime • Link
+For the example of VC Redistributable, download the x64 version here: https://aka.ms/vs/17/release/vc_redist.x64.exe
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 vc_redist.x64.exe
+
+Generic commands:
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 <some-installer.exe>
+
+And .MSI packages can be installed by launching the Windows uninstaller application and choosing to install a downloaded .msi package:
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 uninstaller
+
+My game won’t boot anymore even though I made no changes. • Link
+If the game stopped booting without being updated, you can try clearing the D3DMetal shader cache. Run the following commands:
+cd $(getconf DARWIN_USER_CACHE_DIR)/d3dm
+cd «GAME_NAME»
+rm -r shaders.cache
+Do you have a different problem or other feedback?
+Please let us know through https://feedbackassistant.apple.com.
+Controller issues • Link
+Steam beta[5]
+
+Issues may be fixed by enrolling into the Steam beta.
+
+Steam Big Picture Mode Controller Settings[6]
+
+Right click on the game -> Properties -> Controller -> Override for "Game Name" -> Disable Steam Input
+
+Preventing Launchpad from opening when pressing home
+This is useful especially when using Steam's Big Picture mode.
+Paste this command in terminal :
+defaults write com.apple.GameController bluetoothPrefsMenuLongPressAction -integer 0
+Disabling share button (Optional) :
+defaults write com.apple.GameController bluetoothPrefsShareLongPressSystemGestureMode -integer -1
+My game looks pixelated and the display resolution is limited • Link
+Enable Retina mode
+Enable Retina (high resolution) mode:
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 reg add 'HKEY_CURRENT_USER\Software\Wine\Mac Driver' /v RetinaMode /t REG_SZ /d 'Y' /f
+
+Some games will not run with Retina mode enabled. To disable it:
+WINEPREFIX=~/my-game-prefix `brew --prefix game-porting-toolkit`/bin/wine64 reg add 'HKEY_CURRENT_USER\Software\Wine\Mac Driver' /v RetinaMode /t REG_SZ /d 'N' /f
+
+AVX • Link
+AVX and AVX2 games are not supported by Apple's arm64 chipset.
+Following list is an example of that games.
+
