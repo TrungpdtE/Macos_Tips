@@ -1,0 +1,30 @@
+OLD MACOS version.
+
+Disabling SIP on MacBook
+
+# Step 1: Restart and Enter Recovery Mode
+For Intel Macs: Restart and hold down COMMAND + R to enter Recovery Mode.
+For M1 and M2 Macs: Restart and hold down the Power Button to enter Recovery Mode.
+# Step 2: Open Terminal
+Once in Recovery Mode, select Utilities -> Terminal.
+
+# Step 3: Enter Command
+Type the following command in Terminal:
+
+bash
+  csrutil disable
+# Step 4: Confirm
+Press Enter. If you see the message "System Integrity Protection is off," SIP has been successfully disabled.
+
+Special Instructions for M1 Macs
+To disable SIP on M1 Macs, follow these additional steps:
+
+Type the command csrutil disable.
+Type "y" to confirm.
+Enter your Mac password (no characters will appear as you type).
+Seeing "System Integrity Protection is off" means SIP has been successfully disabled.
+
+# Step 5: Restart
+Type reboot to restart your Mac.
+
+That’s how you disable SIP on a MacBook M1!
