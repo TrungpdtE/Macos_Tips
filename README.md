@@ -1,5 +1,3 @@
 # Macos_Tips
 
-
-
-Kinh nghiệm sau 1 năm xài macbook M1
+Experience After One Year of Using a MacBook M1
